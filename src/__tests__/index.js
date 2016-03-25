@@ -2,6 +2,7 @@ import ava from 'ava';
 import postcss from 'postcss';
 import plugin from '..';
 import {name} from '../../package.json';
+import testRemovals from './testRemovals';
 
 const tests = [{
     message: 'should remove empty @ rules',
@@ -65,25 +66,3 @@ ava('should use the postcss plugin api', t => {
     t.ok(plugin().postcssVersion, 'should be able to access version');
     t.same(plugin().postcssPlugin, name, 'should be able to access name');
 });
-
-function testRemovals (t, test, out) {
-    const message = out.messages.find((m) =>
-        m.plugin === 'postcss-discard-empty' && m.type === 'selectors'
-    );
-
-    const selectors = message.selectors;
-
-    test.removedSelectors.forEach((selector) => {
-        const i = selectors.indexOf(selector);
-
-        if (i === -1) {
-            t.fail('expected selector `' + selector + '` was not removed');
-        } else {
-            selectors.splice(i, 1);
-        }
-    });
-
-    selectors.forEach((selector) => {
-        t.fail('unexpected selector `' + selector + '` was removed');
-    });
-}
